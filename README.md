@@ -1,4 +1,4 @@
-# fhs-install-v2ray
+﻿# fhs-install-v2ray
 
 > 欲查阅以简体中文撰写的介绍，请访问：[README.zh-Hans-CN.md](README.zh-Hans-CN.md)
 
@@ -69,3 +69,65 @@ installed: /etc/systemd/system/v2ray@.service
 請於 [develop](https://github.com/v2fly/fhs-install-v2ray/tree/develop) 分支進行，以避免對主分支造成破壞。
 
 待確定無誤後，兩分支將進行合併。
+
+## 新增
+### 配置源
+修改 /etc/apt/sources.list ：
+```
+#
+
+# deb cdrom:[Debian GNU/Linux 7.3.0 _Wheezy_ - Official i386 NETINST Binary-1 20131215-03:38]/ wheezy main
+
+#deb cdrom:[Debian GNU/Linux 7.3.0 _Wheezy_ - Official i386 NETINST Binary-1 20131215-03:38]/ wheezy main
+
+deb http://archive.debian.org/debian/ wheezy main contrib non-free
+deb-src http://archive.debian.org/debian/ wheezy main contrib non-free
+
+deb http://archive.debian.org/debian-security/ wheezy/updates main
+deb-src http://archive.debian.org/debian-security/ wheezy/updates main
+```
+
+保存后：
+```bash
+apt-get -o Acquire::Check-Valid-Until=false update
+```
+若遇到 `NO_PUBKEY` ：
+```bash
+apt-get install dirmngr
+# apt-key adv --keyserver (keyserver.ubuntu.com) or (keyring.debian.org) --recv-keys ${KEY}
+i.e.    apt-key adv --keyserver keyring.debian.org --recv-keys 7638D0442B90D010
+```
+
+### 安装基础组件：
+```bash
+apt-get -o Acquire::Check-Valid-Until=false update
+apt-get install curl systemd python-dbus
+apt-get -t wheezy install systemd-sysv
+reboot
+```
+
+### 安装 V2Ray：
+```bash
+wget https://raw.githubusercontent.com/wdmwhh/fhs-install-v2ray-debian7/master/install-release.sh
+bash install-release.sh
+```
+
+参考 [V2Ray使用和总结](http://einverne.github.io/post/2018/01/v2ray.html) 对 /usr/local/etc/v2ray/config.json 或者 l/etc/v2ray/config.json 进行修改。
+
+开放端口
+```bash
+apt-get install iptables
+apt-get install iptables-persistent
+iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
+iptables-save  # iptables -L 查看是否成功开启
+invoke-rc.d iptables-persistent save
+```
+
+启动 V2Ray:
+```bash
+systemctl enable v2ray.service
+systemctl start v2ray.service
+```
+
+至此，服务端部署完成，但很可能会因为机器和软件版本出现一些异常，可能用到的分析工具 `netstat -napt （查看 V2Ray 申请端口）; systemctl list-unit-files （查看 V2Ray service 是否加入 systemd）；ps -ef | grep v2ray （查看 V2Ray 是否正常运行）`
+

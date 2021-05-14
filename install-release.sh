@@ -125,7 +125,11 @@ identify_the_operating_system_and_architecture() {
       echo "error: Only Linux distributions using systemd are supported."
       exit 1
     fi
-    if [[ "$(type -P apt)" ]]; then
+    if [[ "$(type -P apt-get)" ]]; then
+      PACKAGE_MANAGEMENT_INSTALL='apt-get -y --no-install-recommends install'
+      PACKAGE_MANAGEMENT_REMOVE='apt-get purge'
+      package_provide_tput='ncurses-bin'
+    elif [[ "$(type -P apt)" ]]; then
       PACKAGE_MANAGEMENT_INSTALL='apt -y --no-install-recommends install'
       PACKAGE_MANAGEMENT_REMOVE='apt purge'
       package_provide_tput='ncurses-bin'
@@ -412,7 +416,7 @@ ExecStart=/usr/local/bin/v2ray -config ${JSON_PATH}/%i.json" > \
 
 start_v2ray() {
   if [[ -f '/etc/systemd/system/v2ray.service' ]]; then
-    if systemctl start "${V2RAY_CUSTOMIZE:-v2ray}"; then
+    if systemctl start "${V2RAY_CUSTOMIZE:-v2ray}.service"; then
       echo 'info: Start the V2Ray service.'
     else
       echo 'error: Failed to start V2Ray service.'
@@ -473,7 +477,7 @@ remove_v2ray() {
       echo 'removed: /etc/systemd/system/v2ray@.service'
       echo 'removed: /etc/systemd/system/v2ray.service.d'
       echo 'removed: /etc/systemd/system/v2ray@.service.d'
-      echo 'Please execute the command: systemctl disable v2ray'
+      echo 'Please execute the command: systemctl disable v2ray.service'
       echo "You may need to execute a command to remove dependent software: $PACKAGE_MANAGEMENT_REMOVE curl unzip"
       echo 'info: V2Ray has been removed.'
       echo 'info: If necessary, manually delete the configuration and log files.'
@@ -602,7 +606,7 @@ main() {
   if [[ "$V2RAY_RUNNING" -eq '1' ]]; then
     start_v2ray
   else
-    echo 'Please execute the command: systemctl enable v2ray; systemctl start v2ray'
+    echo 'Please execute the command: systemctl enable v2ray.service; systemctl start v2ray.service'
   fi
 }
 
