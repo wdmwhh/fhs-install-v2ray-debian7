@@ -112,7 +112,7 @@ wget https://raw.githubusercontent.com/wdmwhh/fhs-install-v2ray-debian7/master/i
 bash install-release.sh
 ```
 
-参考 [V2Ray使用和总结](http://einverne.github.io/post/2018/01/v2ray.html) 对 /usr/local/etc/v2ray/config.json 或者 l/etc/v2ray/config.json 进行修改。
+参考 [V2Ray使用和总结](http://einverne.github.io/post/2018/01/v2ray.html) 对 /usr/local/etc/v2ray/config.json 或者 /etc/v2ray/config.json 进行修改。
 
 开放端口
 ```bash
